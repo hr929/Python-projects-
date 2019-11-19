@@ -1,0 +1,62 @@
+from speech_recognition import *
+import pyaudio
+import pyttsx3
+from wikipedia import *
+from datetime import *
+engine=pyttsx3.init("sapi5")
+voices=engine.getProperty("voices")
+engine.setProperty("voice",voices[0].id)
+def speak(audio):
+    global engine
+    engine.say(audio)
+    engine.runAndWait()
+def greeting():
+    h=int(datetime.now().hour)
+    if h>=0 and h<12:
+        speak("Good Morning")
+    elif h>=12 and h<=16:
+        speak("Good Afternoon")
+    else:
+        speak("Good Night")
+def ear():
+    p=Recognizer()
+    with Microphone() as source:
+        print("Listening......")
+        o=p.listen(source)
+        p.pause_threshold=1
+    try:
+        print("Recognizing......")
+        s=p.recognize_google(o)
+        return s
+    except:
+        speak("Try Again Could not hear")
+        speak("Try Again")
+        ear()
+greeting()
+while(True):
+    speak("How may I help you?")
+    p=ear()
+    if p=="open Wikipedia":
+        speak("What do you want to search on Wikipedia")
+        d=ear()
+        try:
+            print(summary(d))
+            speak(summary(d))
+        except:
+            speak("Invalid Search")
+            continue
+    elif p=="what is the time":
+        hour=str(datetime.now().hour)
+        minute=str(datetime.now().minute)
+        second=str(datetime.now().second)
+        speak("The time is {} hours,{} minutes,{} seconds".format(hour,minute,second))
+        break
+    elif p=="what is the date":
+        u=datetime.now()
+        speak("The date is {} {} {}".format(str(u.day),str(u.month),str(u.year)))
+        break
+    elif p=="enough for today":
+        speak("Good bye")
+        break
+    else:
+        print(p)
